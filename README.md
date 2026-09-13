@@ -6,6 +6,7 @@ a multi-agent doctor / patient / measurement simulation for clinical diagnostic 
 - **Paper**: <https://arxiv.org/abs/2503.22678>
 - **Original code**: <https://github.com/MAXNORM8650/MedAgentSim>
 - **Live interactive version** (needs Claude): <https://claude.ai/code/artifact/cb5e8486-97ef-40d1-8075-c46634c8d333>
+- **Static preview on Pages**: <https://agr-333.github.io/medagentsim-artifact/>
 
 The original ships a Django + Phaser hospital-game frontend backed by 70-billion-parameter
 open-source LLMs served through vLLM. This repo keeps the essential loop and the pixel-hospital
