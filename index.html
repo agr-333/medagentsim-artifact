@@ -393,6 +393,113 @@
     .scene-hud { flex-wrap: wrap; }
   }
 
+  /* backend chip on the HUD */
+  .backend-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px 2px;
+    font-family: "VT323", monospace; font-size: 14px;
+    letter-spacing: 0.05em;
+    background: var(--paper-3); color: var(--ink-2);
+    border-radius: 999px;
+    border: 1px solid var(--line);
+  }
+  .backend-chip .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--ink-3); }
+  .backend-chip.on .dot { background: var(--good); }
+  .backend-chip.off .dot { background: var(--amber); }
+
+  /* modal */
+  .modal-back {
+    position: fixed; inset: 0;
+    background: rgba(16,21,31,0.55);
+    display: grid; place-items: center;
+    z-index: 100;
+    padding: 20px;
+    animation: fade 200ms ease;
+  }
+  .modal-back[hidden] { display: none; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .modal-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    max-width: 560px; width: 100%;
+    max-height: min(88vh, 720px);
+    overflow-y: auto;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.4);
+  }
+  .modal-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 16px 20px 8px;
+  }
+  .modal-head h3 { font-size: 16px; font-weight: 600; }
+  .modal-head .close {
+    background: none; border: 0; cursor: pointer; font-size: 20px;
+    color: var(--ink-3); padding: 0 6px; line-height: 1;
+  }
+  .modal-body { padding: 4px 20px 16px; }
+  .modal-body p.lede { color: var(--ink-2); font-size: 13px; margin-bottom: 12px; }
+  .backend-warn {
+    padding: 10px 12px;
+    background: color-mix(in oklab, var(--amber) 18%, var(--paper-2));
+    border: 1px solid var(--amber);
+    border-radius: 6px; font-size: 12.5px; color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .backend-warn[hidden] { display: none; }
+  .backend-list {
+    display: grid; gap: 8px;
+    margin-bottom: 14px;
+  }
+  .backend-opt {
+    display: grid; grid-template-columns: 20px 1fr; gap: 10px;
+    padding: 10px 12px;
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 8px; cursor: pointer;
+    align-items: start;
+  }
+  .backend-opt.selected { border-color: var(--scrub); background: color-mix(in oklab, var(--scrub) 8%, var(--paper-2)); }
+  .backend-opt input[type=radio] { margin-top: 3px; accent-color: var(--scrub); }
+  .backend-opt strong { display: block; font-size: 13px; }
+  .backend-opt span { font-size: 12.5px; color: var(--ink-2); display: block; margin-top: 2px; }
+  .backend-opt code {
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px;
+    padding: 1px 4px; border-radius: 3px;
+    background: var(--paper-3);
+  }
+  .backend-fields {
+    display: none; gap: 8px;
+    padding: 12px; margin-bottom: 12px;
+    background: var(--paper-2); border: 1px solid var(--line); border-radius: 8px;
+  }
+  .backend-fields.active { display: grid; }
+  .backend-fields label {
+    display: grid; gap: 4px;
+    font-size: 12px; font-family: "VT323", monospace;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2);
+  }
+  .backend-fields input {
+    padding: 8px 10px; border-radius: 6px;
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    font: inherit; font-size: 13px; font-family: "JetBrains Mono", monospace;
+  }
+  .backend-fields input:focus { outline: none; border-color: var(--scrub); }
+  .backend-fields .hint { font-family: "IBM Plex Sans"; text-transform: none; letter-spacing: 0; color: var(--ink-3); font-size: 11.5px; }
+  .backend-fields .hint a { color: var(--scrub); }
+  .test-line {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12.5px; color: var(--ink-2);
+    min-height: 18px;
+  }
+  .test-line .ok { color: var(--good); }
+  .test-line .err { color: var(--bad); }
+  .modal-actions {
+    display: flex; justify-content: flex-end; gap: 8px;
+    padding: 12px 20px 16px;
+    border-top: 1px solid var(--line);
+    position: sticky; bottom: 0;
+    background: var(--paper);
+  }
+
   /* host banner shown only outside claude.ai */
   .host-banner {
     margin-bottom: 14px;
@@ -435,7 +542,10 @@
       <button role="tab" data-tab="memory" aria-selected="false">Memory</button>
       <button role="tab" data-tab="about" aria-selected="false">About</button>
     </nav>
-    <button class="theme-btn" id="theme-toggle" title="Toggle theme">Theme</button>
+    <div style="display:flex;gap:8px">
+      <button class="theme-btn" id="backend-btn" title="Language model backend">⚙ Backend</button>
+      <button class="theme-btn" id="theme-toggle" title="Toggle theme">Theme</button>
+    </div>
   </header>
 
   <div id="view-simulation" class="view active" data-view="simulation">
@@ -445,6 +555,9 @@
           <div class="hud-l">
             <span class="badge blue pixel" id="mode-badge">SIM</span>
             <span class="pixel" id="hud-status" style="color:var(--ink-2);font-size:14px;letter-spacing:0.06em">Ready</span>
+            <span class="backend-chip" id="backend-chip" title="Active language model">
+              <span class="dot"></span><span id="backend-chip-label">claude</span>
+            </span>
           </div>
           <div class="hud-r">
             <span class="pixel" style="font-size:14px;color:var(--ink-3);letter-spacing:0.06em">TURN</span>
@@ -744,6 +857,71 @@
         <button class="btn warn" id="mem-clear">Clear memory</button>
       </div>
     </section>
+  </div>
+
+  <div class="modal-back" id="settings-modal" hidden>
+    <div class="modal-card" role="dialog" aria-label="Language model backend">
+      <div class="modal-head">
+        <h3>Language model backend</h3>
+        <button class="close" id="settings-close" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="lede">Pick which LLM runs the doctor, patient and measurement agents. Keys are stored in your browser only, never sent anywhere except directly to the API you chose.</p>
+        <div class="backend-warn" id="csp-warn" hidden>
+          You are viewing this page inside the claude.ai artifact sandbox, which blocks calls to any host other than Claude. Groq / DeepSeek / Hugging Face / Ollama only work on the GitHub Pages copy (or when the file is opened locally).
+        </div>
+        <div class="backend-list" id="backend-list">
+          <label class="backend-opt"><input type="radio" name="backend" value="claude"><div>
+            <strong>Claude</strong>
+            <span>The default. Uses <code>window.claude.use("sample")</code> when the page is inside a claude.ai artifact viewer. No key needed; the viewer's own Claude account is used.</span>
+          </div></label>
+          <label class="backend-opt"><input type="radio" name="backend" value="groq"><div>
+            <strong>Groq · Llama-3.3-70B</strong>
+            <span>Closest to the paper's setup. Free tier is generous. Needs a key from <code>console.groq.com</code>.</span>
+          </div></label>
+          <label class="backend-opt"><input type="radio" name="backend" value="deepseek"><div>
+            <strong>DeepSeek</strong>
+            <span>OpenAI-compatible. Solid reasoning at low cost. Key from <code>platform.deepseek.com</code>.</span>
+          </div></label>
+          <label class="backend-opt"><input type="radio" name="backend" value="hf"><div>
+            <strong>Hugging Face · MedGemma-4B</strong>
+            <span>The medical model. Uses the HF Router chat-completions endpoint. Free tier is rate-limited; MedGemma is gated — accept the license on its model page first. Key from <code>huggingface.co/settings/tokens</code>.</span>
+          </div></label>
+          <label class="backend-opt"><input type="radio" name="backend" value="ollama"><div>
+            <strong>Ollama · local</strong>
+            <span>For viewers running Ollama locally with a model such as <code>medgemma</code>. Start Ollama with <code>OLLAMA_ORIGINS=*</code> so the browser is allowed to call it.</span>
+          </div></label>
+        </div>
+
+        <div class="backend-fields" id="fields-groq">
+          <label>API key<input type="password" id="groq-key" placeholder="gsk_..." autocomplete="off"></label>
+          <label>Model<input type="text" id="groq-model" value="llama-3.3-70b-versatile"></label>
+          <div class="hint">Try <code>llama-3.3-70b-versatile</code> (default) or <code>qwen/qwen3-32b</code>.</div>
+        </div>
+        <div class="backend-fields" id="fields-deepseek">
+          <label>API key<input type="password" id="ds-key" placeholder="sk-..." autocomplete="off"></label>
+          <label>Model<input type="text" id="ds-model" value="deepseek-chat"></label>
+          <div class="hint">Use <code>deepseek-chat</code> for speed or <code>deepseek-reasoner</code> for slower, more careful diagnoses.</div>
+        </div>
+        <div class="backend-fields" id="fields-hf">
+          <label>HF token<input type="password" id="hf-key" placeholder="hf_..." autocomplete="off"></label>
+          <label>Model<input type="text" id="hf-model" value="google/medgemma-4b-it"></label>
+          <div class="hint">MedGemma is gated. Accept the license at <a href="https://huggingface.co/google/medgemma-4b-it" target="_blank" rel="noopener">huggingface.co/google/medgemma-4b-it</a> with the same account.</div>
+        </div>
+        <div class="backend-fields" id="fields-ollama">
+          <label>Server URL<input type="text" id="ollama-url" value="http://localhost:11434"></label>
+          <label>Model tag<input type="text" id="ollama-model" value="medgemma"></label>
+          <div class="hint">Start Ollama with <code>OLLAMA_ORIGINS='*' ollama serve</code> (in a separate terminal) so the page can reach it from the browser.</div>
+        </div>
+
+        <div class="test-line" id="test-line"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="settings-test">Test connection</button>
+        <button class="btn" id="settings-cancel">Cancel</button>
+        <button class="btn primary" id="settings-save">Save</button>
+      </div>
+    </div>
   </div>
 
   <div id="view-about" class="view">
@@ -1192,32 +1370,182 @@ function retrieveMemory(caseObj, k=2) {
 }
 
 /* ============================================================
- * Claude wiring
+ * LLM backends — Claude, Groq, DeepSeek, HF (MedGemma), Ollama
  * ============================================================ */
+const DEFAULT_CFG = {
+  backend: "claude",
+  groqKey: "",  groqModel: "llama-3.3-70b-versatile",
+  dsKey: "",    dsModel: "deepseek-chat",
+  hfKey: "",    hfModel: "google/medgemma-4b-it",
+  ollamaUrl: "http://localhost:11434", ollamaModel: "medgemma"
+};
+function getLLMConfig() {
+  try {
+    const raw = localStorage.getItem("medagentsim.llm");
+    return Object.assign({}, DEFAULT_CFG, raw ? JSON.parse(raw) : {});
+  } catch { return { ...DEFAULT_CFG }; }
+}
+function saveLLMConfig(cfg) {
+  try { localStorage.setItem("medagentsim.llm", JSON.stringify(cfg)); } catch {}
+  renderBackendChip();
+}
+function backendLabel(cfg) {
+  const b = cfg.backend;
+  if (b === "claude") return "claude · sample";
+  if (b === "groq") return "groq · " + shortModel(cfg.groqModel);
+  if (b === "deepseek") return "deepseek · " + shortModel(cfg.dsModel);
+  if (b === "hf") return "hf · " + shortModel(cfg.hfModel);
+  if (b === "ollama") return "ollama · " + shortModel(cfg.ollamaModel);
+  return b;
+}
+function shortModel(m) {
+  if (!m) return "";
+  const s = m.split("/").pop();
+  return s.length > 22 ? s.slice(0, 22) + "…" : s;
+}
+function backendReady(cfg) {
+  switch (cfg.backend) {
+    case "claude":   return !!(window.claude && typeof window.claude.use === "function");
+    case "groq":     return !!cfg.groqKey;
+    case "deepseek": return !!cfg.dsKey;
+    case "hf":       return !!cfg.hfKey;
+    case "ollama":   return !!cfg.ollamaUrl;
+  }
+  return false;
+}
+function renderBackendChip() {
+  const cfg = getLLMConfig();
+  const chip = $("#backend-chip");
+  const label = $("#backend-chip-label");
+  label.textContent = backendLabel(cfg);
+  chip.className = "backend-chip " + (backendReady(cfg) ? "on" : "off");
+}
+
+/* Claude via window.claude — cached */
 async function ensureClaude() {
   if (state.claudeReady) return state.claudeSample;
   try {
     const sample = await window.claude?.use?.("sample");
-    if (sample) {
-      state.claudeSample = sample;
-      state.claudeReady = true;
-      return sample;
-    }
-  } catch (e) { /* fall through */ }
+    if (sample) { state.claudeSample = sample; state.claudeReady = true; return sample; }
+  } catch {}
   state.claudeReady = true;
   return null;
 }
 
-async function askClaudeJSON(prompt, {tier="default", cache=false, signal} = {}) {
-  const sample = await ensureClaude();
-  if (!sample) throw { code: "not_granted", message: "Claude is unavailable in this view." };
-  return await sample.json(prompt, { modelTier: tier, cache, signal });
+/* Tolerant JSON extractor for non-Claude backends */
+function extractJson(text) {
+  const t = (text || "").trim();
+  if (!t) throw new Error("empty response");
+  try { return JSON.parse(t); } catch {}
+  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) { try { return JSON.parse(fence[1]); } catch {} }
+  const s = t.indexOf("{"), e = t.lastIndexOf("}");
+  if (s >= 0 && e > s) { try { return JSON.parse(t.slice(s, e + 1)); } catch {} }
+  const as = t.indexOf("["), ae = t.lastIndexOf("]");
+  if (as >= 0 && ae > as) { try { return JSON.parse(t.slice(as, ae + 1)); } catch {} }
+  throw new Error("model did not return JSON: " + t.slice(0, 140));
 }
-async function askClaudeText(prompt, {tier="default", cache=false, signal, onText} = {}) {
-  const sample = await ensureClaude();
-  if (!sample) throw { code: "not_granted", message: "Claude is unavailable in this view." };
-  const r = await sample(prompt, { modelTier: tier, cache, signal, onText });
-  return r.text;
+
+/* OpenAI-compatible endpoints (Groq, DeepSeek) */
+async function callOpenAICompat(base, key, model, prompt, { signal, wantsJson }) {
+  const body = {
+    model,
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.4
+  };
+  if (wantsJson) body.response_format = { type: "json_object" };
+  const r = await fetch(base + "/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + key,
+      "Content-Type": "application/json"
+    },
+    signal, body: JSON.stringify(body)
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => "");
+    throw new Error(`HTTP ${r.status} ${r.statusText}${t ? " — " + t.slice(0, 200) : ""}`);
+  }
+  const j = await r.json();
+  return (j.choices?.[0]?.message?.content || "").trim();
+}
+
+/* Hugging Face Router (OpenAI-compatible) */
+async function callHF(key, model, prompt, { signal }) {
+  const r = await fetch("https://router.huggingface.co/v1/chat/completions", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
+    signal,
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.4, max_tokens: 800
+    })
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => "");
+    throw new Error(`HF ${r.status} — ${t.slice(0, 200) || r.statusText}`);
+  }
+  const j = await r.json();
+  return (j.choices?.[0]?.message?.content || "").trim();
+}
+
+/* Ollama local server */
+async function callOllama(baseUrl, model, prompt, { signal, wantsJson }) {
+  const url = baseUrl.replace(/\/$/, "") + "/api/chat";
+  const body = {
+    model,
+    messages: [{ role: "user", content: prompt }],
+    stream: false
+  };
+  if (wantsJson) body.format = "json";
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal, body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(`Ollama ${r.status} — ${r.statusText}. Is OLLAMA_ORIGINS='*' set?`);
+  const j = await r.json();
+  return (j.message?.content || "").trim();
+}
+
+/* Dispatchers used by the simulation loop */
+async function llmText(prompt, { tier = "default", signal, cache = false, wantsJson = false } = {}) {
+  const cfg = getLLMConfig();
+  switch (cfg.backend) {
+    case "claude": {
+      const sample = await ensureClaude();
+      if (!sample) throw { code: "not_granted", message: "Claude is not available in this view." };
+      const r = await sample(prompt, { modelTier: tier, cache, signal });
+      return r.text;
+    }
+    case "groq":
+      if (!cfg.groqKey) throw { code: "not_granted", message: "No Groq API key set." };
+      return await callOpenAICompat("https://api.groq.com/openai/v1", cfg.groqKey, cfg.groqModel, prompt, { signal, wantsJson });
+    case "deepseek":
+      if (!cfg.dsKey) throw { code: "not_granted", message: "No DeepSeek API key set." };
+      return await callOpenAICompat("https://api.deepseek.com", cfg.dsKey, cfg.dsModel, prompt, { signal, wantsJson });
+    case "hf":
+      if (!cfg.hfKey) throw { code: "not_granted", message: "No Hugging Face token set." };
+      return await callHF(cfg.hfKey, cfg.hfModel, prompt, { signal });
+    case "ollama":
+      return await callOllama(cfg.ollamaUrl, cfg.ollamaModel, prompt, { signal, wantsJson });
+    default:
+      throw new Error("Unknown backend: " + cfg.backend);
+  }
+}
+
+async function llmJSON(prompt, { tier = "default", signal, cache = false } = {}) {
+  const cfg = getLLMConfig();
+  if (cfg.backend === "claude") {
+    const sample = await ensureClaude();
+    if (!sample) throw { code: "not_granted", message: "Claude is not available in this view." };
+    return await sample.json(prompt, { modelTier: tier, cache, signal });
+  }
+  // Nudge non-Claude models toward strict JSON in the prompt itself as well.
+  const strict = prompt + '\n\nRespond with the JSON object only. No prose before or after.';
+  const text = await llmText(strict, { tier, signal, cache, wantsJson: true });
+  return extractJson(text);
 }
 
 /* ============================================================
@@ -1307,7 +1635,7 @@ async function fabricateExamResult(caseObj, requested) {
   // the bundled case. Explicitly tell it the diagnosis so it stays consistent.
   try {
     const p = `You are the lab / imaging / physical-exam reporter in a teaching hospital simulation. The patient's TRUE underlying diagnosis is: "${caseObj.truth}". The physician requested: "${requested}". Return a short, realistic single-paragraph result (1–3 sentences) that is CONSISTENT with that diagnosis — abnormal only if this test would plausibly be abnormal given that diagnosis; otherwise say it is unremarkable / within normal limits. Do not name the diagnosis. Do not add commentary.`;
-    const r = await askClaudeText(p, { tier: "quick", cache: true });
+    const r = await llmText(p, { tier: "quick", cache: true });
     return r.trim();
   } catch {
     return "Result not available in this simulation (test outside the case pack).";
@@ -1389,13 +1717,13 @@ async function runOneTurn() {
 
   let plan;
   try {
-    plan = await askClaudeJSON(doctorPrompt(c), {
+    plan = await llmJSON(doctorPrompt(c), {
       tier: "default", cache: false, signal: state.currentAbort.signal
     });
   } catch (e) {
     showThinking(false);
     if (e.code === "cancelled") { setStatus("Paused", "SIM"); return; }
-    handleClaudeError(e); return;
+    handleLLMError(e); return;
   }
   showThinking(false);
 
@@ -1413,12 +1741,12 @@ async function runOneTurn() {
     setStatus("Patient replies…", "SIM");
     let answer;
     try {
-      answer = await askClaudeText(patientPrompt(c, q), {
+      answer = await llmText(patientPrompt(c, q), {
         tier: "quick", cache: false, signal: state.currentAbort.signal
       });
     } catch (e) {
       if (e.code === "cancelled") { setStatus("Paused", "SIM"); return; }
-      handleClaudeError(e); return;
+      handleLLMError(e); return;
     }
     answer = (answer || "").trim();
     pushEvent({ role: "patient", text: answer });
@@ -1474,16 +1802,24 @@ async function runOneTurn() {
   endEncounter({ correct: false, doctorDx: "(unknown action)", reasoning });
 }
 
-function handleClaudeError(e) {
-  const code = e?.code || "upstream_error";
-  const msg = {
-    not_granted:      "Claude access wasn't granted in this view — the doctor / patient agents can't run here.",
-    sampling_disabled:"Claude isn't available for this account.",
-    rate_limited:     "Rate-limited by Claude. Try again in a minute.",
-    session_expired:  "Your Claude session expired — sign in again and reload.",
-    refused:          "Claude refused this input. Try a different case or reset.",
-    upstream_error:   "Something failed talking to Claude. Try again in a moment."
-  }[code] || `Claude error: ${e?.message || code}`;
+function handleLLMError(e) {
+  const backend = getLLMConfig().backend;
+  const code = e?.code || "";
+  let msg;
+  if (code === "not_granted") {
+    msg = backend === "claude"
+      ? "Claude access wasn't granted in this view. Open ⚙ Backend to switch to Groq, DeepSeek, MedGemma via HF, or a local Ollama."
+      : `No key set for ${backend}. Open ⚙ Backend to paste one.`;
+  } else if (code === "rate_limited") {
+    msg = `Rate-limited by ${backend}. Wait a minute and try again.`;
+  } else if (code === "session_expired") {
+    msg = "Your Claude session expired — sign in again and reload.";
+  } else if (code === "refused") {
+    msg = "The model refused this input. Try a different case or reset.";
+  } else {
+    const detail = e?.message ? " — " + e.message : "";
+    msg = `${backend} error${detail}. If you are on claude.ai, only the Claude backend works here (CSP).`;
+  }
   pushEvent({ role: "system", text: msg });
   state.running = false;
   setStatus("Halted", "END");
@@ -1599,14 +1935,121 @@ function init() {
     else document.documentElement.removeAttribute("data-theme");
   });
 
-  // show a banner when the page is served outside a claude.ai viewer
-  // (window.claude is undefined on a plain host such as GitHub Pages)
-  if (!window.claude || typeof window.claude.use !== "function") {
-    $("#host-banner").hidden = false;
-  }
+  wireSettings();
+  updateHostBanner();
+  renderBackendChip();
 
-  // wake Claude in the background so first turn is faster
-  ensureClaude();
+  // wake Claude in the background so first turn is faster (claude only)
+  if (getLLMConfig().backend === "claude") ensureClaude();
+}
+
+/* ============================================================
+ * Settings modal
+ * ============================================================ */
+function wireSettings() {
+  const modal = $("#settings-modal");
+  const openBtn = $("#backend-btn");
+  const closeBtn = $("#settings-close");
+  const cancelBtn = $("#settings-cancel");
+  const saveBtn = $("#settings-save");
+  const testBtn = $("#settings-test");
+
+  const openModal = () => {
+    populateSettings();
+    modal.hidden = false;
+    $("#csp-warn").hidden = !isInsideClaudeSandbox();
+  };
+  const closeModal = () => { modal.hidden = true; $("#test-line").innerHTML = ""; };
+
+  openBtn.addEventListener("click", openModal);
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) closeModal(); });
+
+  // radio switching
+  $$('input[name="backend"]').forEach(r => {
+    r.addEventListener("change", () => showBackendFields(r.value));
+    r.closest("label").addEventListener("click", () => setTimeout(() => showBackendFields(r.value), 0));
+  });
+
+  saveBtn.addEventListener("click", () => {
+    saveSettingsFromForm();
+    closeModal();
+    updateHostBanner();
+    renderBackendChip();
+  });
+
+  testBtn.addEventListener("click", async () => {
+    saveSettingsFromForm();  // save first so llmText reads current values
+    const line = $("#test-line");
+    line.innerHTML = "<span>Testing…</span>";
+    try {
+      const r = await llmText("Reply with only the single word: ok", { tier: "quick" });
+      const ok = /ok/i.test(r);
+      line.innerHTML = ok
+        ? `<span class="ok">✓ Reached the model. It replied: "${escapeHTML(r.slice(0, 40))}"</span>`
+        : `<span class="ok">✓ Reached the model, but the reply wasn't "ok": "${escapeHTML(r.slice(0, 60))}"</span>`;
+      renderBackendChip();
+    } catch (e) {
+      line.innerHTML = `<span class="err">✗ ${escapeHTML(e?.message || e?.code || String(e))}</span>`;
+    }
+  });
+}
+function escapeHTML(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+function populateSettings() {
+  const cfg = getLLMConfig();
+  $$('input[name="backend"]').forEach(r => { r.checked = (r.value === cfg.backend); });
+  $$('.backend-opt').forEach(o => o.classList.remove("selected"));
+  const activeOpt = document.querySelector(`.backend-opt input[value="${cfg.backend}"]`)?.closest(".backend-opt");
+  if (activeOpt) activeOpt.classList.add("selected");
+  $("#groq-key").value = cfg.groqKey || "";
+  $("#groq-model").value = cfg.groqModel || DEFAULT_CFG.groqModel;
+  $("#ds-key").value = cfg.dsKey || "";
+  $("#ds-model").value = cfg.dsModel || DEFAULT_CFG.dsModel;
+  $("#hf-key").value = cfg.hfKey || "";
+  $("#hf-model").value = cfg.hfModel || DEFAULT_CFG.hfModel;
+  $("#ollama-url").value = cfg.ollamaUrl || DEFAULT_CFG.ollamaUrl;
+  $("#ollama-model").value = cfg.ollamaModel || DEFAULT_CFG.ollamaModel;
+  showBackendFields(cfg.backend);
+}
+
+function showBackendFields(name) {
+  ["groq", "deepseek", "hf", "ollama"].forEach(n => {
+    $("#fields-" + n).classList.toggle("active", n === name);
+  });
+  $$('.backend-opt').forEach(o => o.classList.remove("selected"));
+  const el = document.querySelector(`.backend-opt input[value="${name}"]`)?.closest(".backend-opt");
+  if (el) el.classList.add("selected");
+}
+
+function saveSettingsFromForm() {
+  const backend = document.querySelector('input[name="backend"]:checked')?.value || "claude";
+  const cfg = {
+    backend,
+    groqKey:     $("#groq-key").value.trim(),
+    groqModel:   $("#groq-model").value.trim() || DEFAULT_CFG.groqModel,
+    dsKey:       $("#ds-key").value.trim(),
+    dsModel:     $("#ds-model").value.trim() || DEFAULT_CFG.dsModel,
+    hfKey:       $("#hf-key").value.trim(),
+    hfModel:     $("#hf-model").value.trim() || DEFAULT_CFG.hfModel,
+    ollamaUrl:   $("#ollama-url").value.trim() || DEFAULT_CFG.ollamaUrl,
+    ollamaModel: $("#ollama-model").value.trim() || DEFAULT_CFG.ollamaModel
+  };
+  saveLLMConfig(cfg);
+}
+
+function isInsideClaudeSandbox() {
+  return !!(window.claude && typeof window.claude.use === "function");
+}
+
+function updateHostBanner() {
+  const cfg = getLLMConfig();
+  // only show the "open on claude.ai" nudge when the user is on a plain host
+  // AND the selected backend is claude (which can't work here).
+  const need = (!isInsideClaudeSandbox()) && cfg.backend === "claude";
+  $("#host-banner").hidden = !need;
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

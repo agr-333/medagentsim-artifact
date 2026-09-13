@@ -12,8 +12,23 @@ a multi-agent doctor / patient / measurement simulation for clinical diagnostic 
 
 The original ships a Django + Phaser hospital-game frontend backed by 70-billion-parameter
 open-source LLMs served through vLLM. This repo keeps the essential loop and the pixel-hospital
-feel in a single HTML file, and swaps the LLM backend for the viewer's own Claude via
-`window.claude.use("sample")`.
+feel in a single HTML file, and can talk to five different LLM backends (see below).
+
+## Backends
+
+The ⚙ Backend button in the top-right opens a settings panel. Pick one:
+
+| Backend | Model | Where a key comes from | Notes |
+|---|---|---|---|
+| **Claude** | `sample` (default / complex / quick) | Uses `window.claude.use("sample")` — only inside a claude.ai artifact viewer | Best fidelity to the artifact's original design |
+| **Groq** | Llama-3.3-70B-versatile (default) | <https://console.groq.com/keys> | Closest match to the paper's own doctor LLM. Free tier is generous |
+| **DeepSeek** | `deepseek-chat` (default) or `deepseek-reasoner` | <https://platform.deepseek.com/api_keys> | Very low cost, solid reasoning |
+| **Hugging Face** | `google/medgemma-4b-it` (default) | <https://huggingface.co/settings/tokens> | The medical model. MedGemma is gated — accept the license on its model page with the same account first |
+| **Ollama** | `medgemma`, `llama3`, whatever you have pulled | Local | Start Ollama with `OLLAMA_ORIGINS='*' ollama serve` so the browser is allowed to call `localhost:11434` |
+
+Keys are stored in `localStorage` and never sent anywhere except directly to the API you chose.
+
+**CSP note**: inside a claude.ai artifact the sandbox blocks fetches to any host other than Claude — so on the artifact link only the **Claude** backend actually works. Use the GitHub Pages copy (or the raw HTML opened locally) for Groq / DeepSeek / MedGemma / Ollama.
 
 ## What's in the page
 
