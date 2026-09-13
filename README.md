@@ -3,6 +3,8 @@
 A one-page pixel-art reproduction of **MedAgentSim** (Almansoori & Kumar, *MICCAI 2025*),
 a multi-agent doctor / patient / measurement simulation for clinical diagnostic reasoning.
 
+![Ward A — the pixel-art hospital scene with doctor, patient and measurement sprites](./preview.png)
+
 - **Paper**: <https://arxiv.org/abs/2503.22678>
 - **Original code**: <https://github.com/MAXNORM8650/MedAgentSim>
 - **Live interactive version** (needs Claude): <https://claude.ai/code/artifact/cb5e8486-97ef-40d1-8075-c46634c8d333>
